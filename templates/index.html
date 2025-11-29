@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokéApp - Coleção de Cartas</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+    <style>
+        .pokemon-title {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+            text-shadow: 
+                3px 3px 0 #3B4CCA,
+                -1px -1px 0 #3B4CCA,
+                1px -1px 0 #3B4CCA,
+                -1px 1px 0 #3B4CCA;
+        }
+
+        .pokeball-bg {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' opacity='0.05'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%23000' stroke-width='5'/%3E%3Cpath d='M5 50 H95' stroke='%23000' stroke-width='5'/%3E%3Ccircle cx='50' cy='50' r='12' fill='%23fff' stroke='%23000' stroke-width='5'/%3E%3C/svg%3E");
+            background-size: 100px 100px;
+        }
+
+        .navbar-pokemon {
+            background-color: #C7372F;
+            border-bottom: 4px solid #3B4CCA;
+        }
+
+        .btn-pokemon {
+            background-color: #C7372F;
+            border: 2px solid #FFCB05;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-pokemon:hover {
+            background-color: #a32a24;
+            border-color: #3B4CCA;
+        }
+
+        .card-3d-wrapper {
+            perspective: 1500px;
+        }
+        
+        .card-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+            position: relative;
+        }
+        
+        .card-3d .card-shine {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 0.5rem;
+            background: linear-gradient(
+                105deg,
+                transparent 40%,
+                rgba(255, 255, 255, 0.4) 45%,
+                rgba(255, 255, 255, 0.6) 50%,
+                rgba(255, 255, 255, 0.4) 55%,
+                transparent 60%
+            );
+            background-size: 200% 200%;
+            background-position: 100% 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .card-3d:hover .card-shine {
+            opacity: 1;
+        }
+        
+        .card-3d .card-glow {
+            position: absolute;
+            top: -3px;
+            left: -3px;
+            right: -3px;
+            bottom: -3px;
+            border-radius: 0.75rem;
+            background: linear-gradient(45deg, #FFCB05, #FF6B35, #3B4CCA, #FFCB05);
+            background-size: 300% 300%;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            z-index: -1;
+            filter: blur(8px);
+            animation: glow-rotate 2s linear infinite;
+        }
+        
+        .card-3d:hover .card-glow {
+            opacity: 0.7;
+        }
+        
+        @keyframes glow-rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .card-3d img {
+            display: block;
+            border-radius: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-3d .holographic {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 0.5rem;
+            background: linear-gradient(
+                125deg,
+                rgba(255, 203, 5, 0.15) 0%,
+                rgba(255, 107, 53, 0.15) 25%,
+                rgba(59, 76, 202, 0.15) 50%,
+                rgba(255, 203, 5, 0.15) 75%,
+                rgba(199, 55, 47, 0.15) 100%
+            );
+            background-size: 200% 200%;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            pointer-events: none;
+            z-index: 3;
+            mix-blend-mode: color-dodge;
+        }
+
+        .card-3d:hover .holographic {
+            opacity: 1;
+            animation: holographic-move 3s ease infinite;
+        }
+
+        @keyframes holographic-move {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .filter-bar {
+            background-color: #fff;
+            border: 2px solid #3B4CCA;
+        }
+
+        .select-pokemon {
+            border: 2px solid #FFCB05;
+            font-weight: bold;
+        }
+
+        .select-pokemon:focus {
+            border-color: #3B4CCA;
+            outline: none;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200 pokeball-bg">
+    <!-- Navbar -->
+    <div class="navbar navbar-pokemon shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost text-2xl text-white pokemon-title">
+                PokéApp
+            </a>
+        </div>
+        <div class="flex-none gap-2">
+            <a href="/colecao" class="btn btn-pokemon">
+                Minha Coleção
+            </a>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-6">
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold pokemon-title text-yellow-400 mb-2">Pokédex de Cartas</h1>
+            <p class="text-base-content/70">{{ total_cartas }} cartas disponíveis</p>
+        </div>
+
+        <!-- Filtros -->
+        <div class="filter-bar rounded-lg p-4 mb-6 shadow-md">
+            <form method="GET" action="/" class="flex flex-wrap gap-4 items-end">
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-bold text-blue-900">Ordenar por</span>
+                    </label>
+                    <select name="order_by" class="select select-pokemon">
+                        <option value="id" {% if order_by == 'id' %}selected{% endif %}>ID</option>
+                        <option value="nome" {% if order_by == 'nome' %}selected{% endif %}>Nome</option>
+                        <option value="colecao" {% if order_by == 'colecao' %}selected{% endif %}>Coleção</option>
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-bold text-blue-900">Direção</span>
+                    </label>
+                    <select name="order_dir" class="select select-pokemon">
+                        <option value="asc" {% if order_dir == 'asc' %}selected{% endif %}>Crescente</option>
+                        <option value="desc" {% if order_dir == 'desc' %}selected{% endif %}>Decrescente</option>
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-bold text-blue-900">Buscar</span>
+                    </label>
+                    <input type="text" name="search" value="{{ search or '' }}" placeholder="Nome da carta..." class="input select-pokemon w-48" />
+                </div>
+
+                <div class="form-control">
+                    <label class="label">
+                        <span class="label-text font-bold text-blue-900">Por página</span>
+                    </label>
+                    <select name="pagesize" class="select select-pokemon">
+                        <option value="12" {% if pagesize == 12 %}selected{% endif %}>12</option>
+                        <option value="24" {% if pagesize == 24 %}selected{% endif %}>24</option>
+                        <option value="48" {% if pagesize == 48 %}selected{% endif %}>48</option>
+                        <option value="96" {% if pagesize == 96 %}selected{% endif %}>96</option>
+                    </select>
+                </div>
+
+                <input type="hidden" name="page" value="1">
+
+                <button type="submit" class="btn btn-pokemon">
+                    Filtrar
+                </button>
+
+                <a href="/" class="btn btn-outline border-2 border-blue-900 text-blue-900 hover:bg-blue-900 hover:text-white">
+                    Limpar
+                </a>
+            </form>
+        </div>
+        
+        <!-- Cards Grid -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-4">
+            {% for carta in cartas %}
+            <a href="/card?id={{ carta.id }}" class="group flex flex-col items-center">
+                <div class="card-3d-wrapper w-full">
+                    <div class="card-3d" data-card>
+                        <div class="card-glow"></div>
+                        {% if carta.imagem_b64 %}
+                            <img src="data:image/jpeg;base64,{{ carta.imagem_b64 }}" 
+                                 alt="{{ carta.nome }}" 
+                                 class="w-full shadow-md" />
+                        {% else %}
+                            <div class="bg-base-300 rounded-lg w-full aspect-[2.5/3.5] flex items-center justify-center shadow-md">
+                                <span class="text-base-content/50 text-sm">Sem imagem</span>
+                            </div>
+                        {% endif %}
+                        <div class="card-shine"></div>
+                        <div class="holographic"></div>
+                    </div>
+                </div>
+                <h2 class="text-sm font-bold mt-2 text-center group-hover:text-yellow-500 transition-colors">{{ carta.nome }}</h2>
+                <p class="text-xs text-base-content/60">{{ carta.colecao_carta.nome if carta.colecao_carta else "N/A" }}</p>
+            </a>
+            {% endfor %}
+        </div>
+
+        {% if not cartas %}
+        <div class="text-center py-16">
+            <h2 class="text-2xl font-bold text-base-content/50">Nenhuma carta encontrada</h2>
+            <p class="text-base-content/40 mt-2">Tente ajustar os filtros de busca</p>
+        </div>
+        {% endif %}
+        
+        <!-- Pagination -->
+        <div class="flex justify-center mt-8">
+            <div class="join">
+                {% if page > 1 %}
+                    <a href="?page=1&pagesize={{ pagesize }}&order_by={{ order_by }}&order_dir={{ order_dir }}&search={{ search or '' }}" class="join-item btn btn-pokemon">«</a>
+                    <a href="?page={{ page - 1 }}&pagesize={{ pagesize }}&order_by={{ order_by }}&order_dir={{ order_dir }}&search={{ search or '' }}" class="join-item btn btn-pokemon">‹</a>
+                {% else %}
+                    <button class="join-item btn btn-disabled">«</button>
+                    <button class="join-item btn btn-disabled">‹</button>
+                {% endif %}
+                
+                <button class="join-item btn bg-yellow-400 text-blue-900 font-bold border-2 border-blue-900">{{ page }}</button>
+                
+                {% if page < total_paginas %}
+                    <a href="?page={{ page + 1 }}&pagesize={{ pagesize }}&order_by={{ order_by }}&order_dir={{ order_dir }}&search={{ search or '' }}" class="join-item btn btn-pokemon">›</a>
+                    <a href="?page={{ total_paginas }}&pagesize={{ pagesize }}&order_by={{ order_by }}&order_dir={{ order_dir }}&search={{ search or '' }}" class="join-item btn btn-pokemon">»</a>
+                {% else %}
+                    <button class="join-item btn btn-disabled">›</button>
+                    <button class="join-item btn btn-disabled">»</button>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-12 text-base-content/50 text-sm">
+            <p>PokéApp © 2025</p>
+        </div>
+    </div>
+
+    <script>
+        document.querySelectorAll('[data-card]').forEach(card => {
+            const shine = card.querySelector('.card-shine');
+            const holographic = card.querySelector('.holographic');
+            
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -15;
+                const rotateY = ((x - centerX) / centerX) * 15;
+                
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                
+                if (shine) {
+                    const shineX = (x / rect.width) * 100;
+                    const shineY = (y / rect.height) * 100;
+                    shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
+                }
+
+                if (holographic) {
+                    const holoX = (x / rect.width) * 100;
+                    const holoY = (y / rect.height) * 100;
+                    holographic.style.backgroundPosition = `${holoX}% ${holoY}%`;
+                }
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        });
+    </script>
+</body>
+</html>

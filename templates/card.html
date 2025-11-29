@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PokéApp - {{ carta.nome }}</title>
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5" rel="stylesheet" type="text/css" />
+    <link href="https://cdn.jsdelivr.net/npm/daisyui@5/themes.css" rel="stylesheet" type="text/css" />
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+    <style>
+        .pokemon-title {
+            font-family: 'Bangers', cursive;
+            letter-spacing: 2px;
+            text-shadow: 
+                3px 3px 0 #3B4CCA,
+                -1px -1px 0 #3B4CCA,
+                1px -1px 0 #3B4CCA,
+                -1px 1px 0 #3B4CCA;
+        }
+
+        .pokeball-bg {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' opacity='0.05'%3E%3Ccircle cx='50' cy='50' r='45' fill='none' stroke='%23000' stroke-width='5'/%3E%3Cpath d='M5 50 H95' stroke='%23000' stroke-width='5'/%3E%3Ccircle cx='50' cy='50' r='12' fill='%23fff' stroke='%23000' stroke-width='5'/%3E%3C/svg%3E");
+            background-size: 100px 100px;
+        }
+
+        .navbar-pokemon {
+            background-color: #C7372F;
+            border-bottom: 4px solid #3B4CCA;
+        }
+
+        .btn-pokemon {
+            background-color: #C7372F;
+            border: 2px solid #FFCB05;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-pokemon:hover {
+            background-color: #a32a24;
+            border-color: #3B4CCA;
+        }
+
+        .btn-capture {
+            background-color: #22c55e;
+            border: 2px solid #FFCB05;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-capture:hover {
+            background-color: #16a34a;
+        }
+
+        .btn-release {
+            background-color: #ef4444;
+            border: 2px solid #FFCB05;
+            color: white;
+            font-weight: bold;
+        }
+
+        .btn-release:hover {
+            background-color: #dc2626;
+        }
+
+        .card-3d-wrapper {
+            perspective: 1500px;
+        }
+        
+        .card-3d {
+            transform-style: preserve-3d;
+            transition: transform 0.1s ease-out;
+            will-change: transform;
+            position: relative;
+        }
+        
+        .card-3d .card-shine {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 0.75rem;
+            background: linear-gradient(
+                105deg,
+                transparent 40%,
+                rgba(255, 255, 255, 0.4) 45%,
+                rgba(255, 255, 255, 0.6) 50%,
+                rgba(255, 255, 255, 0.4) 55%,
+                transparent 60%
+            );
+            background-size: 200% 200%;
+            background-position: 100% 100%;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            pointer-events: none;
+            z-index: 2;
+        }
+        
+        .card-3d:hover .card-shine {
+            opacity: 1;
+        }
+        
+        .card-3d .card-glow {
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border-radius: 1rem;
+            background: linear-gradient(45deg, #FFCB05, #FF6B35, #3B4CCA, #FFCB05);
+            background-size: 300% 300%;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            z-index: -1;
+            filter: blur(12px);
+            animation: glow-rotate 2s linear infinite;
+        }
+        
+        .card-3d:hover .card-glow {
+            opacity: 0.8;
+        }
+        
+        @keyframes glow-rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        
+        .card-3d img {
+            display: block;
+            border-radius: 0.75rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        .card-3d .holographic {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border-radius: 0.75rem;
+            background: linear-gradient(
+                125deg,
+                rgba(255, 203, 5, 0.15) 0%,
+                rgba(255, 107, 53, 0.15) 25%,
+                rgba(59, 76, 202, 0.15) 50%,
+                rgba(255, 203, 5, 0.15) 75%,
+                rgba(199, 55, 47, 0.15) 100%
+            );
+            background-size: 200% 200%;
+            opacity: 0;
+            transition: opacity 0.3s ease-out;
+            pointer-events: none;
+            z-index: 3;
+            mix-blend-mode: color-dodge;
+        }
+
+        .card-3d:hover .holographic {
+            opacity: 1;
+            animation: holographic-move 3s ease infinite;
+        }
+
+        @keyframes holographic-move {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .info-card {
+            background-color: #fff;
+            border: 3px solid #3B4CCA;
+        }
+
+        .info-box {
+            background-color: #FFF8DC;
+            border: 2px solid #FFCB05;
+        }
+
+        .alert-captured {
+            background-color: #22c55e;
+            border: 2px solid #FFCB05;
+            color: white;
+        }
+
+        .alert-not-captured {
+            background-color: #f59e0b;
+            border: 2px solid #3B4CCA;
+            color: white;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-base-200 pokeball-bg">
+    <!-- Navbar -->
+    <div class="navbar navbar-pokemon shadow-lg">
+        <div class="flex-1">
+            <a href="/" class="btn btn-ghost text-2xl text-white pokemon-title">
+                PokéApp
+            </a>
+        </div>
+        <div class="flex-none gap-2">
+            <a href="/colecao" class="btn btn-pokemon">
+                Minha Coleção
+            </a>
+        </div>
+    </div>
+
+    <div class="container mx-auto p-6">
+        <!-- Breadcrumb -->
+        <div class="breadcrumbs text-sm mb-6">
+            <ul>
+                <li><a href="/" class="text-yellow-600 hover:text-yellow-500">Pokédex</a></li>
+                <li class="font-bold">{{ carta.nome }}</li>
+            </ul>
+        </div>
+
+        <div class="flex flex-col lg:flex-row gap-8 items-start">
+            <!-- Card Image 3D -->
+            <div class="lg:w-1/3 flex justify-center">
+                <div class="card-3d-wrapper w-full max-w-xs">
+                    <div class="card-3d" data-card>
+                        <div class="card-glow"></div>
+                        {% if carta.imagem_b64 %}
+                            <img src="data:image/jpeg;base64,{{ carta.imagem_b64 }}" 
+                                 alt="{{ carta.nome }}" 
+                                 class="w-full shadow-xl" />
+                        {% else %}
+                            <div class="bg-base-300 rounded-xl w-full aspect-[2.5/3.5] flex items-center justify-center shadow-xl">
+                                <span class="text-base-content/50">Sem imagem</span>
+                            </div>
+                        {% endif %}
+                        <div class="card-shine"></div>
+                        <div class="holographic"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Card Details -->
+            <div class="lg:w-2/3">
+                <div class="card info-card shadow-xl">
+                    <div class="card-body">
+                        <h1 class="text-4xl pokemon-title text-yellow-400">{{ carta.nome }}</h1>
+                        
+                        <div class="divider before:bg-blue-900 after:bg-blue-900"></div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="info-box p-3 rounded-lg">
+                                <span class="text-blue-900 text-sm font-bold">ID</span>
+                                <p class="font-bold text-xl text-blue-900">#{{ carta.id }}</p>
+                            </div>
+                            <div class="info-box p-3 rounded-lg">
+                                <span class="text-blue-900 text-sm font-bold">Coleção</span>
+                                <p class="font-bold text-xl text-blue-900">{{ carta.colecao_carta.nome if carta.colecao_carta else "N/A" }}</p>
+                            </div>
+                            {% if carta.colecao_carta %}
+                            <div class="info-box p-3 rounded-lg col-span-2">
+                                <span class="text-blue-900 text-sm font-bold">Ano de Lançamento</span>
+                                <p class="font-bold text-xl text-blue-900">{{ carta.colecao_carta.ano_lancamento }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        <div class="divider before:bg-blue-900 after:bg-blue-900"></div>
+
+                        <!-- Collection Status -->
+                        {% if na_colecao %}
+                            <div class="alert alert-captured shadow-lg">
+                                <span class="font-bold">Carta capturada! Está na sua coleção.</span>
+                            </div>
+                            <form action="/card/remove" method="POST" class="mt-4">
+                                <input type="hidden" name="id" value="{{ carta.id }}">
+                                <button type="submit" class="btn btn-release w-full text-lg">
+                                    Liberar Carta
+                                </button>
+                            </form>
+                        {% else %}
+                            <div class="alert alert-not-captured shadow-lg">
+                                <span class="font-bold">Carta não capturada ainda!</span>
+                            </div>
+                            <form action="/card/add" method="POST" class="mt-4">
+                                <input type="hidden" name="id" value="{{ carta.id }}">
+                                <button type="submit" class="btn btn-capture w-full text-lg">
+                                    Capturar Carta
+                                </button>
+                            </form>
+                        {% endif %}
+
+                        <div class="card-actions justify-start mt-4">
+                            <a href="/" class="btn btn-pokemon">
+                                Voltar para Pokédex
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-12 text-base-content/50 text-sm">
+            <p>PokéApp © 2025</p>
+        </div>
+    </div>
+
+    <script>
+        const card = document.querySelector('[data-card]');
+        if (card) {
+            const shine = card.querySelector('.card-shine');
+            const holographic = card.querySelector('.holographic');
+            
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                
+                const rotateX = ((y - centerY) / centerY) * -25;
+                const rotateY = ((x - centerX) / centerX) * 25;
+                
+                card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale3d(1.05, 1.05, 1.05)`;
+                
+                if (shine) {
+                    const shineX = (x / rect.width) * 100;
+                    const shineY = (y / rect.height) * 100;
+                    shine.style.backgroundPosition = `${shineX}% ${shineY}%`;
+                }
+
+                if (holographic) {
+                    const holoX = (x / rect.width) * 100;
+                    const holoY = (y / rect.height) * 100;
+                    holographic.style.backgroundPosition = `${holoX}% ${holoY}%`;
+                }
+            });
+            
+            card.addEventListener('mouseleave', () => {
+                card.style.transform = 'rotateX(0) rotateY(0) scale3d(1, 1, 1)';
+            });
+        }
+    </script>
+</body>
+</html>
